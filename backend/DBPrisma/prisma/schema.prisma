@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["typedSql"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int         @id @default(autoincrement())
+  username    String      @unique
+  email       String      @unique
+  password    String
+  name        String
+  dni         String      @unique
+  inventory   Inventory[]
+  createdAt   DateTime    @default(now())
+}
+
+model Pharmacy {
+  id          Int         @id @default(autoincrement())
+  name        String
+  address     String
+  username    String      @unique
+  email       String      @unique
+  password    String
+  inventory   Inventory[]
+  createdAt   DateTime    @default(now())
+}
+
+model Medication {
+  id          Int         @id @default(autoincrement())
+  name        String
+  dosage      String
+  inventory   Inventory[]
+}
+
+model Inventory {
+  id            Int         @id @default(autoincrement())
+  userId        Int?        
+  user          User?       @relation(fields: [userId], references: [id])
+  pharmacyId    Int?
+  pharmacy      Pharmacy?   @relation(fields: [pharmacyId], references: [id])
+  medicationId  Int
+  medication    Medication  @relation(fields: [medicationId], references: [id])
+  quantity      Int
+
+
+
+  // Evita duplicados de dueño y medicamento
+  @@unique([userId, medicationId])
+  @@unique([pharmacyId, medicationId])
+}
+
