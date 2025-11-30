@@ -12,10 +12,31 @@ import {
 import * as Res from '../resources';
 import {GeneralPurposeButton, TextField} from '../components';
 
-export const SignIn = ({navigation}) => {
+export const SignIn = ({
+  navigation,
+  handleLogin,
+  handleLogout,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  auth,
+}) => {
+
   const handlePressOutside = () => {
     Keyboard.dismiss();
   };
+
+  React.useEffect(() => {
+  if (auth.status === 'succeeded') {
+    navigation.navigate('Home');
+  }
+  }, [auth.status]);
+
+  React.useEffect(() => {
+  console.log('Auth changed:', auth);
+}, [auth]);
+ 
 
   return (
     <TouchableWithoutFeedback onPress={handlePressOutside}>
@@ -29,7 +50,7 @@ export const SignIn = ({navigation}) => {
             </Text>
           </View>
           <View style={signInStyles.textArea}>
-            <Text style={Res.CommonStyles.texts.paragraph}>
+            <Text style={[Res.CommonStyles.texts.paragraph, {textAlign: 'center'}]}>
               {Res.GetSignInText().description}
             </Text>
           </View>
@@ -38,12 +59,14 @@ export const SignIn = ({navigation}) => {
               <TextField
                 placeholder={Res.GetSignInText().emailPlaceHolder}
                 inputMode="email"
+                onChangeText={setEmail}
               />
             </View>
             <View style={signInStyles.textFieldContainer}>
               <TextField
                 placeholder={Res.GetSignInText().passwordPlaceHolder}
                 inputMode="password"
+                onChangeText={setPassword}
               />
             </View>
           </View>
@@ -51,11 +74,17 @@ export const SignIn = ({navigation}) => {
             <GeneralPurposeButton
               text={Res.GetSignInText().title}
               onPress={() => {
-                // Add logic for sign-in
-                navigation.navigate('Home');
+                console.log('Login button pressed');
+                handleLogin();
+                console.log('Auth state:', auth);
               }}
             />
           </View>
+          {auth.status === 'loading' && <Text>Loading...</Text>}
+          <Text style={{ color: 'red' }}>
+            {auth.status === 'failed' ? (auth.error || 'An error occurred') : ''}
+          </Text>
+
           <View style={signInStyles.textArea}>
             <Text
               style={Res.CommonStyles.texts.link}
@@ -78,7 +107,7 @@ const signInStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 20,
+    padding: 20,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -86,10 +115,11 @@ const signInStyles = StyleSheet.create({
     alignItems: 'center',
   },
   titleArea: {
-    marginBottom: 10,
+    marginBottom: 20,
+    marginTop: '25%',
   },
   textArea: {
-    marginBottom: 10,
+    marginBottom: 20,
   },
   textFieldArea: {
     justifyContent: 'space-around',
@@ -101,6 +131,7 @@ const signInStyles = StyleSheet.create({
   buttonArea: {
     width: '100%',
     marginBottom: 10,
+    marginTop: 10,
   },
   paddingArea: {
     flex: 1,

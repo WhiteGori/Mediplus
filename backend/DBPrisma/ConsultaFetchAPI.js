@@ -1,0 +1,3 @@
+fetch("prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RfaWQiOjEsInNlY3VyZV9rZXkiOiJza18wQ3B4LXVldEE2dThtNUZTTW5zMXoiLCJhcGlfa2V5IjoiMDFLMDJNR1JFNVNKMzU1OTA4NTE5OTBKRjkiLCJ0ZW5hbnRfaWQiOiIwMjYyYmExNTBlZjI3NWU5ZmJiZjZmMDJlNGJlZThmYWQzNGUxZGE0OWIzODVlOTg5ZTQzM2UyOWQ3MTZkNTMwIiwiaW50ZXJuYWxfc2VjcmV0IjoiNWE3MGQwZjItY2MwZC00Yzk0LWI5Y2EtOTdkMGI2NjEyMjcwIn0.RhuFgBF4kbzWTFs7aq8iNQ_rYyifD0oRCZmBBWeGPzQ")
+  .then(res => res.json())
+  .then(data => console.log(data))

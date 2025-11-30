@@ -6,7 +6,7 @@
     "caching": "ts-node ./src/caching.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.11.1",
+    "@prisma/client": "^6.12.0",
     "@prisma/extension-accelerate": "2.0.1",
     "@types/node": "22.15.32",
     "dotenv": "16.6.1"

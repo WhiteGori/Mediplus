@@ -10,10 +10,6 @@ export const Profile = () => {
         <Text style={[Res.CommonStyles.texts.title, profileStyles.title]}>
           {Res.userData.name}
         </Text>
-        <Image
-          source={require('../resources/images/homero.webp')}
-          style={profileStyles.image}
-        />
         <View style={profileStyles.dataArea}>
           <View style={profileStyles.outerDataField}>
             <View style={profileStyles.leftInnerDataField}>

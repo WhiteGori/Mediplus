@@ -3,16 +3,27 @@ import {View, Text, StyleSheet} from 'react-native';
 import * as Res from '../resources';
 import {GeneralPurposeButton, OptionPicker} from '../components';
 
-export const Settings = ({navigation}) => {
+export const Settings = ({
+  navigation,
+  handleLogin,
+  handleLogout,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  auth,
+}) => {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   const handleLanguageChange = option => {
     Res.setAppLanguage(option);
     forceUpdate();
   };
 
-  const handleLogout = () => {
-    navigation.navigate('AppIntro');
-  };
+  React.useEffect(() => {
+    if (auth.user === null) {
+      navigation.navigate('AppIntro');
+    }
+  }, [auth.user]);
 
   return (
     <View style={settingsStyles.container}>

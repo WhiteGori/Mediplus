@@ -12,12 +12,77 @@ import {
 
 import * as Res from '../resources';
 import {GeneralPurposeButton, TextField} from '../components';
+import { signUp } from '../Redux/authSlice';
 
-export const SignUp = ({navigation}) => {
+
+export const SignUp = ({
+  dispatch,
+  navigation,
+  email,
+  setEmail,
+  rePassword,
+  password,
+  firstName,
+  lastName,
+  cuit,
+  birthDate,
+  direccion,
+  nombreFarmacia,
+  razonSocial,
+  setPassword,
+  handleLogin,
+  handleLogout,
+  setBirthDate,
+  setCuit,
+  setDireccion,
+  setFirstName,
+  setLastName,
+  setNombreFarmacia,
+  setRazonSocial,
+  setRePassword
+}) => {
   const [esFarmacia, setEsFarmacia] = useState(false);
   const handlePressOutside = () => {
     Keyboard.dismiss();
   };
+
+  const handleSignUp = () => {
+  if (!email || !password || password !== rePassword) {
+    alert('Check email/password fields');
+    return;
+  }
+
+  const payload = {
+    email,
+    password,
+    ...(esFarmacia
+      ? {
+          userType: 'pharmacy',
+          direccion,
+          nombreFarmacia,
+          razonSocial,
+          cuit,
+        }
+      : {
+          userType: 'user',
+          firstName,
+          lastName,
+          birthDate,
+        }),
+  };
+
+  dispatch(signUp(payload))
+    .unwrap()
+    .then(() => {
+      alert('Registro exitoso');
+      navigation.navigate('Home');
+    })
+    .catch(error => {
+      alert('Error al registrar: ' + error.message);
+    });
+};
+
+
   function checkbox() {
     if (esFarmacia === true) {
       return (
@@ -42,20 +107,19 @@ export const SignUp = ({navigation}) => {
 
   function dataFields() {
     if (esFarmacia === true) {
-      // TODO agregar estos textos a strings.js
       return (
         <View>
           <View style={signUpStyles.textFieldContainer}>
-            <TextField placeholder={'Direccion'} inputMode="text" />
+            <TextField placeholder={'Direccion'} inputMode="text" onChangeText={setDireccion}/>
           </View>
           <View style={signUpStyles.textFieldContainer}>
-            <TextField placeholder={'Nombre a mostrar'} inputMode="text" />
+            <TextField placeholder={'Nombre a mostrar'} inputMode="text" onChangeText={setNombreFarmacia}/>
           </View>
           <View style={signUpStyles.textFieldContainer}>
-            <TextField placeholder={'Razon social'} inputMode="text" />
+            <TextField placeholder={'Razon social'} inputMode="text" onChangeText={setRazonSocial}/>
           </View>
           <View style={signUpStyles.textFieldContainer}>
-            <TextField placeholder={'Cuit'} inputMode="text" />
+            <TextField placeholder={'Cuit'} inputMode="text" onChangeText={setCuit}/>
           </View>
         </View>
       );
@@ -66,18 +130,21 @@ export const SignUp = ({navigation}) => {
             <TextField
               placeholder={Res.GetSignUpText().birthDatePlaceHolder}
               inputMode="text"
+              onChangeText={setBirthDate}
             />
           </View>
           <View style={signUpStyles.textFieldContainer}>
             <TextField
               placeholder={Res.GetSignUpText().firstNamePlaceHolder}
               inputMode="text"
+              onChangeText={setFirstName}
             />
           </View>
           <View style={signUpStyles.textFieldContainer}>
             <TextField
               placeholder={Res.GetSignUpText().lastNamePlaceHolder}
               inputMode="text"
+              onChangeText={setLastName}
             />
           </View>
         </View>
@@ -112,18 +179,21 @@ export const SignUp = ({navigation}) => {
               <TextField
                 placeholder={Res.GetSignUpText().emailPlaceHolder}
                 inputMode="email"
+                onChangeText={setEmail}
               />
             </View>
             <View style={signUpStyles.textFieldContainer}>
               <TextField
                 placeholder={Res.GetSignUpText().passwordPlaceHolder}
                 inputMode="password"
+                onChangeText={setPassword}
               />
             </View>
             <View style={signUpStyles.textFieldContainer}>
               <TextField
                 placeholder={Res.GetSignUpText().reEnterPasswordPlaceHolder}
                 inputMode="password"
+                onChangeText={setRePassword}
               />
             </View>
             {dataFields()}
@@ -132,7 +202,7 @@ export const SignUp = ({navigation}) => {
             <GeneralPurposeButton
               text={Res.GetButtonText().signUp}
               onPress={() => {
-                // Add logic for sign-up
+                handleSignUp();
                 navigation.navigate('Home');
               }}
             />
