@@ -39,13 +39,14 @@ export const AddMedicine = ({navigation}) => {
     success,
   } = useSelector(state => state.medication);
 
+  const authUser = useSelector(state => state.auth.user);
+  const userId = authUser?.id;
+
+
   const [optionsGenerated, setOptionsGenerated] = useState(false);
   const [options, setOptions] = useState(null);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [pickerDate, setPickerDate] = useState(new Date());
-
-  // ⚠️ Después lo conectás con auth real
-  const userId = 1;
 
   function getMedicineOptions() {
     if (optionsGenerated && options) return options;
@@ -77,6 +78,11 @@ export const AddMedicine = ({navigation}) => {
 
   // ===== GUARDAR =====
   const handleSave = () => {
+    if (!userId) {
+      alert('Sesión inválida. Volvé a iniciar sesión.');
+      return;
+    }
+
     console.log('USER:', userId);
     console.log('MEDICATION ID:', selectedMedication);
     console.log('TIMES:', times);
@@ -94,7 +100,7 @@ export const AddMedicine = ({navigation}) => {
     dispatch(
       saveMedicationSchedule({
         userId,
-        medicationId: selectedMedication, // ✅ YA ES UN NUMERO
+        medicationId: selectedMedication,
         times,
       }),
     );
@@ -149,7 +155,7 @@ export const AddMedicine = ({navigation}) => {
               text="Agregar horario"
               onPress={() => setShowTimePicker(true)}
               color={Res.COMPONENT_COLOR.PRIMARY}
-              textStyle={Res.CommonStyles.texts.paragraph}
+              textStyle={[Res.CommonStyles.texts.paragraph, {color: 'white'}]}
             />
           </View>
 

@@ -14,6 +14,9 @@ export default function useAuthProps() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [birthDate, setBirthDate] = useState('');
+  const [dni, setDni] = useState('');
+  const [direccionUser, setDireccionUser] = useState('');
+
 
   const [direccion, setDireccion] = useState('');
   const [nombreFarmacia, setNombreFarmacia] = useState('');
@@ -42,6 +45,8 @@ export default function useAuthProps() {
     nombreFarmacia, setNombreFarmacia,
     razonSocial, setRazonSocial,
     cuit, setCuit,
+    dni, setDni,
+    direccionUser, setDireccionUser,
     auth,
   };
 }

@@ -16,6 +16,7 @@ model User {
   lastName    String?     // antes: String
   birthDate   String?     // antes: String
   dni         String?     @unique
+  address     String?
   inventory   Inventory[]
   createdAt   DateTime    @default(now())
   medicationSchedules MedicationSchedule[]

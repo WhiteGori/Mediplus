@@ -26,7 +26,7 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Datos invalidos' });
     }
 
-    res.json({ id: user.id, email: user.email, name: user.name });
+    res.json({ id: user.id, email: user.email, name: user.name, birthDate: user.birthDate, dni: user.dni, address: user.address, firstName: user.firstName, lastName: user.lastName });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -57,10 +57,11 @@ app.post('/signup', async (req, res) => {
         data: {
           email,
           password,
-          dni: rest.dni || '00000000',
+          dni: rest.dni,
           birthDate: rest.birthDate,
           firstName: rest.firstName,
           lastName: rest.lastName,
+          address: rest.direccionUser,
         },
       });
     } else if (userType === 'pharmacy') {
@@ -106,6 +107,29 @@ app.post('/medication-schedules', async (req, res) => {
     res.status(201).json(schedule);
   } catch (err) {
     console.error('Error creando MedicationSchedule:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/medication-schedules/:userId', async (req, res) => {
+  const userId = Number(req.params.userId);
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId inválido' });
+  }
+
+  try {
+    const schedules = await prisma.medicationSchedule.findMany({
+      where: { userId },
+      include: {
+        medication: true, // ← traemos nombre y dosis
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json(schedules);
+  } catch (err) {
+    console.error('Error trayendo schedules:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

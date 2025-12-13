@@ -29,6 +29,27 @@ export const saveMedicationSchedule = createAsyncThunk(
   }
 );
 
+export const fetchMedicationSchedules = createAsyncThunk(
+  'medication/fetchSchedules',
+  async (userId, thunkAPI) => {
+    try {
+      const res = await fetch(
+        `http://10.0.2.2:4000/medication-schedules/${userId}`
+      );
+
+      if (!res.ok) {
+        const text = await res.text();
+        return thunkAPI.rejectWithValue(text);
+      }
+
+      return await res.json();
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+
 const medicationSlice = createSlice({
   name: 'medication',
   initialState: {
@@ -77,7 +98,20 @@ const medicationSlice = createSlice({
       .addCase(saveMedicationSchedule.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchMedicationSchedules.pending, state => {
+        state.loading = true;
+      })
+      .addCase(fetchMedicationSchedules.fulfilled, (state, action) => {
+        state.loading = false;
+        state.schedules = action.payload;
+      })
+      .addCase(fetchMedicationSchedules.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
+
+      
   },
 });
 

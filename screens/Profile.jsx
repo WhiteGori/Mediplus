@@ -1,131 +1,140 @@
 import React from 'react';
-import {SafeAreaView, View, Text, Image, StyleSheet} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 import * as Res from '../resources';
-import {GetSettingsText} from '../resources';
 
 export const Profile = () => {
-  return (
-    <View style={profileStyles.background}>
-      <View style={profileStyles.container}>
-        <Text style={[Res.CommonStyles.texts.title, profileStyles.title]}>
-          {Res.userData.name}
-        </Text>
-        <View style={profileStyles.dataArea}>
-          <View style={profileStyles.outerDataField}>
-            <View style={profileStyles.leftInnerDataField}>
-              <Text
-                style={[Res.CommonStyles.texts.subtitle, profileStyles.labels]}>
-                {Res.GetProfileText().emailLabel}
-              </Text>
-            </View>
-            <View style={profileStyles.rightInnerDataField}>
-              <Text
-                style={[Res.CommonStyles.texts.paragraph, profileStyles.data]}>
-                {Res.userData.email}
-              </Text>
-            </View>
-          </View>
-        </View>
-        <View style={profileStyles.dataArea}>
-          <View style={profileStyles.outerDataField}>
-            <View style={profileStyles.leftInnerDataField}>
-              <Text
-                style={[Res.CommonStyles.texts.subtitle, profileStyles.labels]}>
-                {Res.GetProfileText().birthDateLabel}
-              </Text>
-            </View>
-            <View style={profileStyles.rightInnerDataField}>
-              <Text
-                style={[Res.CommonStyles.texts.paragraph, profileStyles.data]}>
-                {Res.userData.birthDate}
-              </Text>
-            </View>
-          </View>
-        </View>
-        <View style={profileStyles.dataArea}>
-          <View style={profileStyles.outerDataField}>
-            <View style={profileStyles.leftInnerDataField}>
-              <Text
-                style={[Res.CommonStyles.texts.subtitle, profileStyles.labels]}>
-                {Res.GetProfileText().ageLabel}
-              </Text>
-            </View>
-            <View style={profileStyles.rightInnerDataField}>
-              <Text
-                style={[Res.CommonStyles.texts.paragraph, profileStyles.data]}>
-                {Res.userData.age}
-              </Text>
-            </View>
-          </View>
-        </View>
-        <View style={profileStyles.dataArea}>
-          <View style={profileStyles.outerDataField}>
-            <View style={profileStyles.leftInnerDataField}>
-              <Text
-                style={[Res.CommonStyles.texts.subtitle, profileStyles.labels]}>
-                {Res.GetProfileText().addressLabel}
-              </Text>
-            </View>
-            <View style={profileStyles.rightInnerDataField}>
-              <Text
-                style={[Res.CommonStyles.texts.paragraph, profileStyles.data]}>
-                {Res.userData.address}
-              </Text>
-            </View>
-          </View>
-        </View>
+  const user = useSelector(state => state.auth.user);
+
+  if (!user) {
+    return (
+      <View style={styles.background}>
+        <Text>No hay usuario logueado</Text>
       </View>
-      <View style={{height: 100}} />
+    );
+  }
+
+  const getAge = birthDate => {
+    if (!birthDate) return '—';
+
+    const birth = new Date(birthDate);
+    const today = new Date();
+
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    return age;
+  };
+
+  return (
+    <View style={styles.background}>
+      {/* HEADER */}
+      <View style={styles.header}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>
+            {user.firstName?.[0]}
+            {user.lastName?.[0]}
+          </Text>
+        </View>
+
+        <Text style={styles.name}>
+          {`${user.firstName ?? ''} ${user.lastName ?? ''}`}
+        </Text>
+      </View>
+
+      {/* CARD */}
+      <View style={styles.card}>
+        <ProfileRow label="Correo electrónico" value={user.email} />
+        <ProfileRow label="Fecha de nacimiento" value={user.birthDate ?? '—'} />
+        <ProfileRow label="DNI" value={user.dni ?? '—'} />
+        <ProfileRow label="Edad" value={getAge(user.birthDate)} />
+        <ProfileRow label="Dirección" value={user.address ?? '—'} />
+      </View>
     </View>
   );
 };
 
-const profileStyles = StyleSheet.create({
+/* ========================= */
+/* COMPONENTE FILA */
+/* ========================= */
+
+const ProfileRow = ({ label, value }) => (
+  <View style={styles.row}>
+    <Text style={styles.label}>{label}</Text>
+    <Text style={styles.value}>{value}</Text>
+  </View>
+);
+
+/* ========================= */
+/* STYLES */
+/* ========================= */
+
+const styles = StyleSheet.create({
   background: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: Res.COMPONENT_COLOR.BACKGROUND,
+    padding: 20,
   },
-  container: {
-    flex: 1,
+
+  /* HEADER */
+  header: {
     alignItems: 'center',
-    width: '100%',
+    marginBottom: 25,
   },
-  image: {
-    width: 200,
-    height: 200,
-    marginVertical: 10,
+
+  avatar: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: Res.COMPONENT_COLOR.PRIMARY,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
-  dataArea: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-    width: '95%',
+
+  avatarText: {
+    color: 'white',
+    fontSize: 32,
+    fontWeight: 'bold',
   },
-  outerDataField: {
-    flex: 1,
-    flexDirection: 'column',
-    width: '100%',
+
+  name: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#000',
   },
-  leftInnerDataField: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    width: '100%',
+
+  /* CARD */
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    elevation: 3,
   },
-  rightInnerDataField: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    marginBottom: 20,
-    width: '100%',
+
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
-  title: {
-    textAlign: 'center',
+
+  label: {
+    fontSize: 14,
+    color: '#666',
   },
-  labels: {
-    textAlign: 'left',
-  },
-  data: {
+
+  value: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#000',
+    maxWidth: '60%',
     textAlign: 'right',
   },
 });

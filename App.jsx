@@ -14,6 +14,11 @@ import * as Res from './resources';
 import authProps from './resources/authProps';
 import { navigationRef } from './navigationRef';
 
+import { useDispatch } from 'react-redux';
+import { fetchMedicationSchedules } from './Redux/medicationSlice';
+
+
+
 const Drawer = createDrawerNavigator();
 
 export let userID;
@@ -22,8 +27,18 @@ function AppScreen() {
   const auth = useSelector(state => state.auth);
   const sharedProps = authProps();
 
+  const dispatch = useDispatch();
+
+
   const allowedPublicScreens = ["AppIntro", "SignIn", "SignUp"];
   const isLoggedIn = !!auth.user;
+
+  React.useEffect(() => {
+    if (auth.user?.id) {
+      dispatch(fetchMedicationSchedules(auth.user.id));
+    }
+  }, [auth.user, dispatch]);
+
 
   function GetScreenOptions(info) {
     if (!info.showInDrawer) {
@@ -49,7 +64,10 @@ function AppScreen() {
           name={info.name}
           options={GetScreenOptions(info)}
         >
-          {props => <info.component {...props} {...sharedProps} />}
+          {props => <info.component
+            {...props}
+            {...sharedProps}
+          />}
         </Drawer.Screen>
       );
     }

@@ -8,7 +8,10 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   Image,
+  Platform,
+  TouchableOpacity
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import * as Res from '../resources';
 import {GeneralPurposeButton, TextField} from '../components';
@@ -24,6 +27,8 @@ export const SignUp = ({
   password,
   firstName,
   lastName,
+  dni,
+  direccionUser,
   cuit,
   birthDate,
   direccion,
@@ -37,6 +42,8 @@ export const SignUp = ({
   setDireccion,
   setFirstName,
   setLastName,
+  setDireccionUser,
+  setDni,
   setNombreFarmacia,
   setRazonSocial,
   setRePassword
@@ -44,6 +51,24 @@ export const SignUp = ({
   const [esFarmacia, setEsFarmacia] = useState(false);
   const handlePressOutside = () => {
     Keyboard.dismiss();
+  };
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dateObj, setDateObj] = useState(null);
+  const formatDateISO = date => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+  const onBirthDateChange = (event, selectedDate) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+
+    if (!selectedDate) return;
+
+    setDateObj(selectedDate);
+    setBirthDate(formatDateISO(selectedDate));
   };
 
   const handleSignUp = () => {
@@ -68,14 +93,19 @@ export const SignUp = ({
           firstName,
           lastName,
           birthDate,
+          dni,
+          direccionUser,
         }),
   };
+
+  
+
+
 
   dispatch(signUp(payload))
     .unwrap()
     .then(() => {
       alert('Registro exitoso');
-      navigation.navigate('Home');
     })
     .catch(error => {
       alert('Error al registrar: ' + error.message);
@@ -127,12 +157,35 @@ export const SignUp = ({
       return (
         <View>
           <View style={signUpStyles.textFieldContainer}>
-            <TextField
-              placeholder={Res.GetSignUpText().birthDatePlaceHolder}
-              inputMode="text"
-              onChangeText={setBirthDate}
-            />
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(true)}
+              activeOpacity={0.8}
+              style={textInputStyles.container}
+            >
+              <View style={textInputStyles.field}>
+                <Text
+                  style={[
+                    Res.CommonStyles.texts.paragraph,
+                    !birthDate && { color: Res.TEXT_COLOR.PLACEHOLDERS },
+                  ]}
+                >
+                  {birthDate || Res.GetSignUpText().birthDatePlaceHolder}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={dateObj || new Date(2000, 0, 1)}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onBirthDateChange}
+                maximumDate={new Date()}
+              />
+            )}
           </View>
+
+
           <View style={signUpStyles.textFieldContainer}>
             <TextField
               placeholder={Res.GetSignUpText().firstNamePlaceHolder}
@@ -147,7 +200,25 @@ export const SignUp = ({
               onChangeText={setLastName}
             />
           </View>
+
+          <View style={signUpStyles.textFieldContainer}>
+            <TextField
+              placeholder="DNI"
+              inputMode="numeric"
+              onChangeText={setDni}
+            />
+          </View>
+
+          <View style={signUpStyles.textFieldContainer}>
+            <TextField
+              placeholder="Domicilio"
+              inputMode="text"
+              onChangeText={setDireccionUser}
+            />
+          </View>
+
         </View>
+        
       );
     }
   }
@@ -203,7 +274,6 @@ export const SignUp = ({
               text={Res.GetButtonText().signUp}
               onPress={() => {
                 handleSignUp();
-                navigation.navigate('Home');
               }}
             />
           </View>
@@ -273,4 +343,18 @@ const signUpStyles = StyleSheet.create({
   farmaciaTexto: {
     fontSize: 23,
   },
+
 });
+
+const textInputStyles = {
+  container: { width: '100%' },
+  field: {
+    borderColor: Res.COMPONENT_COLOR.PRIMARY,
+    borderWidth: 3,
+    borderRadius: 100,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    padding: 10,
+    width: '100%',
+  },
+};

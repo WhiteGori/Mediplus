@@ -1,4 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchMedicationSchedules } from '../Redux/medicationSlice';
+import { useFocusEffect } from '@react-navigation/native';
+
+
 import {
   SafeAreaView,
   StyleSheet,
@@ -16,9 +21,49 @@ import {
   MedicineModal,
 } from '../components';
 
+
+
 export const Home = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [medicineItem, setMedicineItem] = useState(undefined);
+  
+  const dispatch = useDispatch();
+
+  const auth = useSelector(state => state.auth);
+  const medication = useSelector(state => state.medication);
+  const userId = auth.user?.id;
+  const schedules = medication.schedules || [];
+  const loading = medication.loading;
+
+  React.useEffect(() => {
+    if (userId) {
+      dispatch(fetchMedicationSchedules(userId));
+    }
+  }, [userId, dispatch]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (auth.user?.id) {
+        dispatch(fetchMedicationSchedules(auth.user.id));
+      }
+    }, [auth.user?.id, dispatch])
+  );
+
+  const mappedData = schedules.map(schedule => ({
+    id: schedule.id,
+    name: `${schedule.medication.name} ${schedule.medication.dosage}`,
+    times: schedule.times,
+  }));
+
+
+
+  if (loading) {
+    return (
+      <SafeAreaView style={homeScreenStyles.background}>
+        <Text>Cargando medicaciones...</Text>
+      </SafeAreaView>
+    );
+  }
 
   function showModal(item) {
     setMedicineItem(item);
@@ -68,20 +113,16 @@ export const Home = ({navigation}) => {
         imageStyle={homeScreenStyles.Image}
         resizeMode="contain">
         <FlatList
-          ItemSeparatorComponent={<View style={{height: 30}} />}
-          data={DataMedicamentos}
-          renderItem={({item}) => (
+          ItemSeparatorComponent={<View style={{ height: 30 }} />}
+          data={mappedData}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => (
             <MedicineContainer
               name={item.name}
-              amount={item.amount}
-              remaining={item.remaining}
-              timeHour1={item.timeHour1}
-              timeHour2={item.timeHour2}
-              timeHour3={item.timeHour3}
+              times={item.times}
               onPress={() => showModal(item)}
             />
           )}
-          showsVerticalScrollIndicator={false}
           ListFooterComponent={
             <AddMedicineButton
               onPress={() => navigation.navigate('AddMedicine')}
@@ -89,40 +130,12 @@ export const Home = ({navigation}) => {
           }
           ListFooterComponentStyle={{paddingTop: 30, paddingBottom: 30}}
         />
+
       </ImageBackground>
     </SafeAreaView>
   );
 };
 
-const DataMedicamentos = [
-  {
-    name: 'Isotretinoína 20mg',
-    amount: 30,
-    remaining: 16,
-    timeHour1: 22,
-    timeHour2: 10,
-  },
-  {
-    name: 'Levotiroxina 75mg',
-    amount: 56,
-    remaining: 20,
-    timeHour1: 9,
-  },
-  {
-    name: 'Acido acetilsalicilico 100mg',
-    amount: 84,
-    remaining: 30,
-    timeHour1: 8,
-    timeHour2: 14,
-    timeHour3: 20,
-  },
-  {
-    name: 'Levonorgestrel/Etinilestradiol 0,1 mg',
-    amount: 30,
-    remaining: 12,
-    timeHour1: 14,
-  },
-];
 
 const homeScreenStyles = StyleSheet.create({
   background: {
