@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 //Login
 export const login = createAsyncThunk('auth/login', async ({ email, password }) => {
-  const response = await fetch('http://172.29.132.74:4000/login', {
+  const response = await fetch('http://10.0.2.2:4000/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -20,7 +20,7 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }) 
 //SignUp
 export const signUp = createAsyncThunk('auth/signUp', async (userData, { dispatch }) => {
 
-  const response = await fetch('http://172.29.132.74:4000/signup', {
+  const response = await fetch('http://10.0.2.2:4000/signup', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(userData),
@@ -32,7 +32,7 @@ export const signUp = createAsyncThunk('auth/signUp', async (userData, { dispatc
   }
 
   const { email, password } = userData;
-  const loginResponse = await fetch('http://172.29.132.74:4000/login', {
+  const loginResponse = await fetch('http://10.0.2.2:4000/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),

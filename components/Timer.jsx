@@ -1,72 +1,49 @@
-import React, {useEffect, useState} from 'react';
-import {Text, StyleSheet} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text } from 'react-native';
 
-export const Timer = props => {
-  const dateCompare1 = new Date();
-  dateCompare1.setHours(props.timeHour1);
-  dateCompare1.setMinutes(0);
-  dateCompare1.setSeconds(0);
+export const Timer = ({ times = [], style }) => {
+  const getNextDate = () => {
+    const now = new Date();
 
-  let dateArray = [dateCompare1];
+    const futureDates = times
+      .filter(h => h !== undefined)
+      .map(hour => {
+        const d = new Date();
+        d.setHours(hour, 0, 0, 0);
+        if (d <= now) d.setDate(d.getDate() + 1);
+        return d;
+      })
+      .sort((a, b) => a - b);
 
-  if (props.timeHour2 != undefined) {
-    const dateCompare2 = new Date();
-    dateCompare2.setHours(props.timeHour2);
-    dateCompare2.setMinutes(0);
-    dateCompare2.setSeconds(0);
-    dateArray.push(dateCompare2);
-  }
+    return futureDates[0];
+  };
 
-  if (props.timeHour3 != undefined) {
-    const dateCompare3 = new Date();
-    dateCompare3.setHours(props.timeHour3);
-    dateCompare3.setMinutes(0);
-    dateCompare3.setSeconds(0);
-    dateArray.push(dateCompare3);
-  }
+  const formatTime = ms => {
+    const total = Math.max(0, ms / 1000);
+    const h = Math.floor(total / 3600).toString().padStart(2, '0');
+    const m = Math.floor((total % 3600) / 60).toString().padStart(2, '0');
+    const s = Math.floor(total % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${s}`;
+  };
 
-  let dateCompare;
-
-  function timeLeft() {
-    let currentDate = new Date();
-    let max = currentDate;
-    for (let i = 0; i < dateArray.length; i++) {
-      if (dateArray[i] > currentDate) {
-        max = dateArray[i];
-      }
-    }
-
-    if (max == currentDate) {
-      for (let i = 0; i < dateArray.length; i++) {
-        dateArray[i].setDate(currentDate.getDate() + 1);
-      }
-    }
-
-    for (let i = 0; dateCompare == undefined; i++) {
-      if (currentDate < dateArray[i]) {
-        dateCompare = dateArray[i];
-      }
-    }
-
-    let secs = (Math.floor((dateCompare - currentDate) / 1000) % 60)
-      .toString()
-      .padStart(2, '0');
-    let mins = (Math.floor((dateCompare - currentDate) / 1000 / 60) % 60)
-      .toString()
-      .padStart(2, '0');
-    let hours = Math.floor((dateCompare - currentDate) / 1000 / 60 / 60)
-      .toString()
-      .padStart(2, '0');
-    return hours + ':' + mins + ':' + secs;
-  }
-
-  const [date, setDate] = useState(timeLeft(dateCompare));
+  const [target, setTarget] = useState(getNextDate());
+  const [timeLeft, setTimeLeft] = useState('00:00:00');
 
   useEffect(() => {
-    setInterval(() => {
-      setDate(timeLeft(dateCompare));
-    }, 1000);
-  }, []);
+    const interval = setInterval(() => {
+      const now = new Date();
+      const diff = target - now;
 
-  return <Text style={props.style}>{date}</Text>;
+      if (diff <= 0) {
+        const next = getNextDate();
+        setTarget(next);
+      } else {
+        setTimeLeft(formatTime(diff));
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [target]);
+
+  return <Text style={style}>{timeLeft}</Text>;
 };

@@ -1,119 +1,210 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   View,
   ScrollView,
   StyleSheet,
-  TouchableWithoutFeedback,
-  Keyboard,
+  Platform,
+  TouchableOpacity,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {useDispatch, useSelector} from 'react-redux';
+
 import {
   OptionPicker,
   GeneralPurposeButton,
   createInitialFromString,
-  TextField,
 } from '../components';
-import {MedDataBase} from '../backend';
 import * as Res from '../resources';
 
+import {
+  setSelectedMedication,
+  addTime,
+  removeTime,
+  saveMedicationSchedule,
+  resetMedicationForm,
+} from '../Redux/medicationSlice';
+
+// ⚠️ Este array ahora DEBE venir del backend en el futuro
+import {MedDataBase} from '../backend';
+
 export const AddMedicine = ({navigation}) => {
-  /* TODO reemplazar por algo MUCHO mas eficiente */
+  const dispatch = useDispatch();
+
+  const {
+    selectedMedication, // AHORA ES SOLO UN NUMERO (ID)
+    times,
+    loading,
+    error,
+    success,
+  } = useSelector(state => state.medication);
 
   const [optionsGenerated, setOptionsGenerated] = useState(false);
   const [options, setOptions] = useState(null);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [pickerDate, setPickerDate] = useState(new Date());
+
+  // ⚠️ Después lo conectás con auth real
+  const userId = 1;
 
   function getMedicineOptions() {
-    if (optionsGenerated === true && options !== null) {
-      return options;
-    }
+    if (optionsGenerated && options) return options;
 
-    console.log('** DEBUG ** Generating Medicine Options');
     setOptionsGenerated(true);
 
-    let auxOptions = [];
+    const auxOptions = MedDataBase.map(med => ({
+      key: med.id, // ✅ ID real
+      label: `${med.commercialName} ${med.dosage}`,
+      value: med.id, // ✅ YA NO PASAMOS TODO EL OBJETO
+    }));
 
-    for (let medIndex in MedDataBase) {
-      let med = MedDataBase[medIndex];
-      let aux = {
-        key: medIndex,
-        label: med.commercialName + ' ' + med.dosage,
-        value: med,
-      };
-      auxOptions.push(aux);
-    }
     setOptions(auxOptions);
-    return options;
+    return auxOptions;
   }
 
-  const handlePressOutside = () => {
-    Keyboard.dismiss();
+  // ===== TIME PICKER =====
+  const onTimeChange = (event, selected) => {
+    if (Platform.OS === 'android') setShowTimePicker(false);
+    if (!selected) return;
+
+    const h = selected.getHours().toString().padStart(2, '0');
+    const m = selected.getMinutes().toString().padStart(2, '0');
+    const timeStr = `${h}:${m}`;
+
+    dispatch(addTime(timeStr));
+    setPickerDate(selected);
   };
 
+  // ===== GUARDAR =====
+  const handleSave = () => {
+    console.log('USER:', userId);
+    console.log('MEDICATION ID:', selectedMedication);
+    console.log('TIMES:', times);
+
+    if (!selectedMedication) {
+      alert('Seleccioná un medicamento');
+      return;
+    }
+
+    if (times.length === 0) {
+      alert('Agregá al menos un horario');
+      return;
+    }
+
+    dispatch(
+      saveMedicationSchedule({
+        userId,
+        medicationId: selectedMedication, // ✅ YA ES UN NUMERO
+        times,
+      }),
+    );
+  };
+
+  // ===== POST GUARDADO =====
+  useEffect(() => {
+    if (success) {
+      dispatch(resetMedicationForm());
+      navigation.navigate('Home');
+    }
+  }, [success, dispatch, navigation]);
+
   return (
-    <TouchableWithoutFeedback onPress={handlePressOutside}>
-      <ScrollView contentContainerStyle={addMedicineStyles.background}>
-        <View style={addMedicineStyles.titleArea}>
-          <Text style={Res.CommonStyles.texts.title}>
-            {Res.GetAddMedicineText().title}
-          </Text>
-        </View>
-        <View style={addMedicineStyles.inputArea}>
-          <View style={addMedicineStyles.optionPickerArea}>
-            <OptionPicker
-              options={getMedicineOptions()}
-              enableCancel={true}
-              cancel={Res.GetButtonText().cancel}
-              initial={createInitialFromString(
-                Res.GetAddMedicineText().pickerPlaceholder,
-              )}
-              onSelection={() => {}}
-              cancelButtonColor={Res.COMPONENT_COLOR.SECONDARY}
-            />
-          </View>
-          <View style={addMedicineStyles.reminderAreaStyles.outer}>
-            <View style={addMedicineStyles.reminderAreaStyles.subtitle}>
-              <Text style={Res.CommonStyles.texts.subtitle}>
-                {Res.GetAddMedicineText().timeSubtitle}
-              </Text>
-            </View>
-            <View style={addMedicineStyles.reminderAreaStyles.timeOuter}>
-              <View style={addMedicineStyles.reminderAreaStyles.timeInnerLeft}>
-                <TextField
-                  style={addMedicineStyles.textFields}
-                  textStyle={Res.CommonStyles.texts.subtitle}
-                  textAlign={'center'}
-                  inputMode={'decimal'}
-                />
-              </View>
-              <View
-                style={addMedicineStyles.reminderAreaStyles.timeInnerMiddle}>
-                <Text style={Res.CommonStyles.texts.subtitle}>
-                  {Res.GetAddMedicineText().timeSeparator}
-                </Text>
-              </View>
-              <View style={addMedicineStyles.reminderAreaStyles.timeInnerRight}>
-                <TextField
-                  style={addMedicineStyles.textFields}
-                  textStyle={Res.CommonStyles.texts.subtitle}
-                  textAlign={'center'}
-                  inputMode={'decimal'}
-                />
-              </View>
-            </View>
-          </View>
-        </View>
-        <View style={addMedicineStyles.buttonArea}>
-          <GeneralPurposeButton
-            text={Res.GetButtonText().accept}
-            onPress={() => {
-              navigation.navigate('Home');
+    <ScrollView
+      contentContainerStyle={addMedicineStyles.background}
+      keyboardShouldPersistTaps="handled">
+
+      <View style={addMedicineStyles.titleArea}>
+        <Text style={Res.CommonStyles.texts.title}>
+          {Res.GetAddMedicineText().title}
+        </Text>
+      </View>
+
+      <View style={addMedicineStyles.inputArea}>
+        {/* PICKER DE MEDICAMENTOS */}
+        <View style={addMedicineStyles.optionPickerArea}>
+          <OptionPicker
+            options={getMedicineOptions()}
+            enableCancel={true}
+            cancel={Res.GetButtonText().cancel}
+            initial={createInitialFromString(
+              Res.GetAddMedicineText().pickerPlaceholder,
+            )}
+            onSelection={option => {
+              dispatch(setSelectedMedication(option.value)); // ✅ solo ID
             }}
+            cancelButtonColor={Res.COMPONENT_COLOR.SECONDARY}
           />
         </View>
-      </ScrollView>
-    </TouchableWithoutFeedback>
+
+        {/* HORARIOS */}
+        <View style={addMedicineStyles.reminderAreaStyles.outer}>
+          <View style={addMedicineStyles.reminderAreaStyles.subtitle}>
+            <Text style={Res.CommonStyles.texts.subtitle}>
+              {Res.GetAddMedicineText().timeSubtitle}
+            </Text>
+          </View>
+
+          <View style={addMedicineStyles.addTimeButtonContainer}>
+            <GeneralPurposeButton
+              text="Agregar horario"
+              onPress={() => setShowTimePicker(true)}
+              color={Res.COMPONENT_COLOR.PRIMARY}
+              textStyle={Res.CommonStyles.texts.paragraph}
+            />
+          </View>
+
+          <View style={addMedicineStyles.timeListContainer}>
+            {times.length === 0 && (
+              <Text style={Res.CommonStyles.texts.paragraph}>
+                No hay horarios agregados.
+              </Text>
+            )}
+
+            {times.map(time => (
+              <View
+                key={time}
+                style={addMedicineStyles.timeChipContainer}>
+                <Text style={Res.CommonStyles.texts.paragraph}>{time}</Text>
+                <TouchableOpacity
+                  onPress={() => dispatch(removeTime(time))}>
+                  <Text style={addMedicineStyles.removeTimeText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+
+          {showTimePicker && (
+            <DateTimePicker
+              value={pickerDate}
+              mode="time"
+              is24Hour={true}
+              display={Platform.OS === 'android' ? 'default' : 'spinner'}
+              onChange={onTimeChange}
+            />
+          )}
+        </View>
+      </View>
+
+      {error && (
+        <View style={{alignItems: 'center', marginBottom: 10}}>
+          <Text style={{color: 'red'}}>{error}</Text>
+        </View>
+      )}
+
+      <View style={addMedicineStyles.mainButtonArea}>
+        <GeneralPurposeButton
+          text={loading ? 'Guardando...' : Res.GetButtonText().accept}
+          onPress={handleSave}
+          disabled={loading}
+        />
+      </View>
+    </ScrollView>
   );
 };
+
+
+
+
 
 const addMedicineStyles = StyleSheet.create({
   background: {
@@ -166,5 +257,30 @@ const addMedicineStyles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'flex-start',
     },
+    
   },
+    addTimeButtonContainer: {
+    marginVertical: 10,
+    alignItems: 'flex-start',
+  },
+  timeListContainer: {
+    marginTop: 10,
+    gap: 8,
+  },
+  timeChipContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Res.COMPONENT_COLOR.PRIMARY,
+    alignSelf: 'flex-start',
+  },
+  removeTimeText: {
+    marginLeft: 8,
+    color: 'red',
+    fontWeight: 'bold',
+  },
+
 });

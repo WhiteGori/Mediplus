@@ -1,7 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { PrismaClient } = require('@prisma/client');
+
 
 const prisma = new PrismaClient();
 const app = express();
@@ -79,6 +81,31 @@ app.post('/signup', async (req, res) => {
     res.json({ id: newUser.id, email: newUser.email });
   } catch (err) {
     console.error('Signup error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/medication-schedules', async (req, res) => {
+  const { userId, medicationId, times } = req.body;
+
+  if (!userId || !medicationId || !Array.isArray(times) || times.length === 0) {
+    return res.status(400).json({
+      error: 'userId, medicationId y un array de times son requeridos',
+    });
+  }
+
+  try {
+    const schedule = await prisma.medicationSchedule.create({
+      data: {
+        userId,
+        medicationId,
+        times, // array de strings tipo ["08:00", "14:00"]
+      },
+    });
+
+    res.status(201).json(schedule);
+  } catch (err) {
+    console.error('Error creando MedicationSchedule:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

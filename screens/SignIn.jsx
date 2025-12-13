@@ -28,14 +28,17 @@ export const SignIn = ({
   };
 
   React.useEffect(() => {
-  if (auth.status === 'succeeded') {
-    navigation.navigate('Home');
-  }
-  }, [auth.status]);
+    if (auth.status === 'succeeded' && auth.user) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+    }
+  }, [auth.status, auth.user, navigation]);
 
   React.useEffect(() => {
-  console.log('Auth changed:', auth);
-}, [auth]);
+    console.log('Auth changed:', auth);
+  }, [auth]);
  
 
   return (

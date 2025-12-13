@@ -17,11 +17,9 @@ export const MedicineContainer = props => {
             {' '}
             Tomar dentro de{' '}
           </Text>
-          <Timer
+          <Timer 
             style={MedicineContainerStyles.textoTimer}
-            timeHour1={props.timeHour1}
-            timeHour2={props.timeHour2}
-            timeHour3={props.timeHour3}
+            times={[props.timeHour1, props.timeHour2, props.timeHour3]}
           />
         </View>
       </TouchableOpacity>

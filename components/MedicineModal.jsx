@@ -52,10 +52,8 @@ export const MedicineModal = props => {
             </View>
             <Text style={MedicineModalStyles.textoTimer}>
               Proxima dosis en {'\n'}
-              <Timer
-                timeHour1={props.timeHour1}
-                timeHour2={props.timeHour2}
-                timeHour3={props.timeHour3}
+              <Timer 
+                times={[props.timeHour1, props.timeHour2, props.timeHour3]}
               />
             </Text>
           </View>

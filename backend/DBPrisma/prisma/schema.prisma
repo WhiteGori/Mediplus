@@ -18,6 +18,7 @@ model User {
   dni         String?     @unique
   inventory   Inventory[]
   createdAt   DateTime    @default(now())
+  medicationSchedules MedicationSchedule[]
 }
 
 model Pharmacy {
@@ -38,6 +39,7 @@ model Medication {
   name        String
   dosage      String
   inventory   Inventory[]
+    medicationSchedules MedicationSchedule[]
 }
 
 model Inventory {
@@ -52,4 +54,18 @@ model Inventory {
 
   @@unique([userId, medicationId])
   @@unique([pharmacyId, medicationId])
+}
+
+model MedicationSchedule {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  user         User       @relation(fields: [userId], references: [id])
+  medicationId Int
+  medication   Medication @relation(fields: [medicationId], references: [id])
+
+  /// Array de horarios del tipo "HH:mm", por ejemplo ["08:00", "14:00", "22:00"]
+  times        String[]
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }

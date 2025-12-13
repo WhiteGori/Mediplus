@@ -60,6 +60,7 @@ export const ScreenInfo = {
     showInDrawer: true,
     showDrawerIcon: true,
     drawerIconStyle: DRAWER_ICON.MENU,
+    isPublic: false,
   },
   Map: {
     name: 'Map',
@@ -68,6 +69,7 @@ export const ScreenInfo = {
     showInDrawer: true,
     showDrawerIcon: true,
     drawerIconStyle: DRAWER_ICON.MENU,
+    isPublic: false,
   },
   Profile: {
     name: 'Profile',
@@ -76,6 +78,7 @@ export const ScreenInfo = {
     showInDrawer: true,
     showDrawerIcon: true,
     drawerIconStyle: DRAWER_ICON.MENU,
+    isPublic: false,
   },
   Settings: {
     name: 'Settings',
@@ -84,6 +87,7 @@ export const ScreenInfo = {
     showInDrawer: true,
     showDrawerIcon: true,
     drawerIconStyle: DRAWER_ICON.MENU,
+    isPublic: false,
   },
 
   /* SCREENS THAT ARE NOT SHOWN IN DRAWER HERE */
@@ -94,6 +98,7 @@ export const ScreenInfo = {
     showInDrawer: false,
     showDrawerIcon: false,
     drawerIconStyle: DRAWER_ICON.NONE,
+    isPublic: true,
   },
   SignUp: {
     name: 'SignUp',
@@ -102,6 +107,7 @@ export const ScreenInfo = {
     showInDrawer: false,
     showDrawerIcon: false,
     drawerIconStyle: DRAWER_ICON.NONE,
+    isPublic: true,
   },
   AppIntro: {
     name: 'AppIntro',
@@ -110,6 +116,7 @@ export const ScreenInfo = {
     showInDrawer: false,
     showDrawerIcon: false,
     drawerIconStyle: DRAWER_ICON.NONE,
+    isPublic: true,
   },
   MedicationDetail: {
     name: 'MedicationDetail',
@@ -118,6 +125,7 @@ export const ScreenInfo = {
     showInDrawer: false,
     showDrawerIcon: true,
     drawerIconStyle: DRAWER_ICON.BACK_ARROW,
+    isPublic: false,
   },
   AddMedicine: {
     name: 'AddMedicine',
@@ -126,6 +134,7 @@ export const ScreenInfo = {
     showInDrawer: false,
     showDrawerIcon: true,
     drawerIconStyle: DRAWER_ICON.BACK_ARROW,
+    isPublic: false,
   },
   PedidosUser: {
     name: 'PedidosUser',
@@ -134,6 +143,7 @@ export const ScreenInfo = {
     showInDrawer: true,
     showDrawerIcon: true,
     drawerIconStyle: DRAWER_ICON.MENU,
+    isPublic: false,
   },
   PedidosPharmacy: {
     name: 'PedidosPharmacy',
@@ -142,6 +152,7 @@ export const ScreenInfo = {
     showInDrawer: true,
     showDrawerIcon: true,
     drawerIconStyle: DRAWER_ICON.MENU,
+    isPublic: false,
   },
   Stock: {
     name: 'Stock',
@@ -150,5 +161,6 @@ export const ScreenInfo = {
     showInDrawer: true,
     showDrawerIcon: true,
     drawerIconStyle: DRAWER_ICON.MENU,
+    isPublic: false,
   }
 };
