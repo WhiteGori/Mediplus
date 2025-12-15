@@ -9,3 +9,4 @@ export {OptionPicker, createInitialFromString} from './OptionPicker';
 export {MedicineOrder} from './MedicineOrder';
 export {StockModalExisting} from './StockModalExisting';
 export {StockModalNew} from './StockModalNew';
+export {GlobalAlarmOverlay} from './GlobalAlarmOverlay';

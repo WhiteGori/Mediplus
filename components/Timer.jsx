@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Text } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { startAlarm } from '../Redux/alarmSlice';
 
-export const Timer = ({ times = [], style }) => {
+export const Timer = ({ times = [], style, medicationName }) => {
+  const dispatch = useDispatch();
+  const [target, setTarget] = useState(null);
+  const [timeLeft, setTimeLeft] = useState('00:00:00');
+
   const getNextDate = () => {
     const now = new Date();
 
     const futureDates = times
-      .filter(Boolean)
-      .map(timeStr => {
-        const [h, m] = timeStr.split(':').map(Number);
+      .filter(t => typeof t === 'string')
+      .map(t => {
+        const [h, m] = t.split(':').map(Number);
         const d = new Date();
         d.setHours(h, m, 0, 0);
         if (d <= now) d.setDate(d.getDate() + 1);
@@ -16,7 +22,7 @@ export const Timer = ({ times = [], style }) => {
       })
       .sort((a, b) => a - b);
 
-    return futureDates[0];
+    return futureDates[0] || null;
   };
 
   const formatTime = ms => {
@@ -27,8 +33,10 @@ export const Timer = ({ times = [], style }) => {
     return `${h}:${m}:${s}`;
   };
 
-  const [target, setTarget] = useState(getNextDate());
-  const [timeLeft, setTimeLeft] = useState('00:00:00');
+  // recalcular próximo horario
+  useEffect(() => {
+    setTarget(getNextDate());
+  }, [times]);
 
   useEffect(() => {
     if (!target) return;
@@ -38,14 +46,15 @@ export const Timer = ({ times = [], style }) => {
       const diff = target - now;
 
       if (diff <= 0) {
-        setTarget(getNextDate());
+        dispatch(startAlarm(medicationName));
+        setTarget(getNextDate()); // preparar siguiente toma
       } else {
         setTimeLeft(formatTime(diff));
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [target, times]);
+  }, [target, dispatch, medicationName]);
 
   return <Text style={style}>{timeLeft}</Text>;
 };

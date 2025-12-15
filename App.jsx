@@ -9,13 +9,18 @@ import { Provider, useSelector } from 'react-redux';
 
 import store from './Redux/Store';
 import * as Screens from './screens';
-import { Header } from './components';
+import { Header, GlobalAlarmOverlay } from './components';
 import * as Res from './resources';
 import authProps from './resources/authProps';
 import { navigationRef } from './navigationRef';
 
 import { useDispatch } from 'react-redux';
 import { fetchMedicationSchedules } from './Redux/medicationSlice';
+import notifee from '@notifee/react-native';
+import { stopAlarm } from './Redux/alarmSlice';
+
+
+
 
 
 
@@ -38,6 +43,15 @@ function AppScreen() {
       dispatch(fetchMedicationSchedules(auth.user.id));
     }
   }, [auth.user, dispatch]);
+
+  React.useEffect(() => {
+    return notifee.onForegroundEvent(({ type, detail }) => {
+      if (detail.pressAction?.id === 'STOP_ALARM') {
+        dispatch(stopAlarm());
+      }
+    });
+  }, [dispatch]);
+
 
 
   function GetScreenOptions(info) {
@@ -123,6 +137,7 @@ export default function App() {
   return (
     <Provider store={store}>
       <AppScreen />
+      <GlobalAlarmOverlay />
     </Provider>
   );
 }

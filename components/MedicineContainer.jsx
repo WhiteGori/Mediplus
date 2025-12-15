@@ -20,6 +20,7 @@ export const MedicineContainer = props => {
           <Timer 
             style={MedicineContainerStyles.textoTimer}
             times={props.times}
+            medicationName={props.name}
           />
         </View>
       </TouchableOpacity>
