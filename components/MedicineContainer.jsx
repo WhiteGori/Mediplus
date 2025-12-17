@@ -6,39 +6,50 @@ import { Timer } from './Timer';
 export const MedicineContainer = ({
   name,
   times,
-  scheduleId,
   isAlarmActive,
+  onStopAlarm,
   onDelete,
+  scheduleId,
 }) => {
   return (
     <View style={styles.card}>
-      {/* 🧠 HEADER */}
-      <View style={styles.header}>
-        <Text style={styles.title}>{name}</Text>
+      <Text style={styles.title}>{name}</Text>
 
-        <TouchableOpacity
-          onPress={() => onDelete(scheduleId)}
-          style={styles.deleteButton}
-        >
-          <Text style={styles.deleteText}>🗑</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* ⏰ BODY */}
       {isAlarmActive ? (
-        <Text style={styles.alarmText}>
-          ⏰ Es hora de tomar la medicación
-        </Text>
+        /* 🔴 ALARMA ACTIVA */
+        <View style={styles.alertBox}>
+          <Text style={styles.alertText}>
+            ⏰ Es hora de tomar la medicación
+          </Text>
+
+          <TouchableOpacity
+            style={styles.takeButton}
+            onPress={onStopAlarm}
+          >
+            <Text style={styles.takeButtonText}>
+              Marcar como tomada
+            </Text>
+          </TouchableOpacity>
+        </View>
       ) : (
-        <View style={styles.timerBox}>
+        /* ⏳ ESTADO NORMAL */
+        <>
           <Text style={styles.subtitle}>Próxima toma en</Text>
+
           <Timer
             style={styles.timer}
             scheduleId={scheduleId}
             times={times}
             medicationName={name}
           />
-        </View>
+
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => onDelete(scheduleId)}
+          >
+            <Text style={styles.deleteText}>🗑 Eliminar recordatorio</Text>
+          </TouchableOpacity>
+        </>
       )}
     </View>
   );
@@ -46,58 +57,58 @@ export const MedicineContainer = ({
 
 const styles = StyleSheet.create({
   card: {
-    width: '85%',
+    width: '80%',
     alignSelf: 'center',
     backgroundColor: 'white',
     borderRadius: 24,
     padding: 16,
     borderWidth: 2,
     borderColor: '#e0e0e0',
-  },
-
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
   },
-
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#222',
-    flex: 1,
+    marginBottom: 12,
+    color: '#000',
+    textAlign: 'center',
   },
-
-  deleteButton: {
-    padding: 6,
-  },
-
-  deleteText: {
-    fontSize: 20,
-    color: '#c62828',
-  },
-
-  timerBox: {
-    alignItems: 'center',
-  },
-
   subtitle: {
     fontSize: 14,
-    color: '#777',
-    marginBottom: 4,
+    color: Res.COMPONENT_COLOR.PRIMARY,
+    marginBottom: 6,
   },
-
   timer: {
     fontSize: 18,
     color: Res.COMPONENT_COLOR.PRIMARY,
-    fontWeight: 'bold',
+    marginBottom: 14,
   },
-
-  alarmText: {
+  alertBox: {
+    alignItems: 'center',
+  },
+  alertText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#d32f2f',
+    color: 'red',
+    marginBottom: 14,
     textAlign: 'center',
+  },
+  takeButton: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 22,
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  takeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  deleteButton: {
+    marginTop: 10,
+    paddingVertical: 8,
+  },
+  deleteText: {
+    color: '#d32f2f',
+    fontWeight: 'bold',
   },
 });

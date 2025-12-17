@@ -44,6 +44,10 @@ export const Home = ({navigation}) => {
   const userId = auth.user?.id;
   const schedules = medication.schedules || [];
   const loading = medication.loading;
+  const handleDeleteSchedule = id => {
+    dispatch(deleteMedicationSchedule(id));
+  };
+
 
   React.useEffect(() => {
     if (userId) {
@@ -139,14 +143,14 @@ export const Home = ({navigation}) => {
               times={item.times}
               scheduleId={item.id}
               isAlarmActive={item.isAlarmActive}
-              onStopAlarm={() => dispatch(stopAlarm())} 
-              onPress={() => showModal(item)}
+              onStopAlarm={() => dispatch(stopAlarm())}
               onDelete={(scheduleId) => {
-              dispatch(stopAlarm()); // por si justo estaba sonando
-              dispatch(deleteMedicationSchedule(scheduleId));
-            }}
+                dispatch(stopAlarm()); // 🔇 por si justo estaba sonando
+                dispatch(deleteMedicationSchedule(scheduleId));
+              }}
             />
           )}
+
           ListFooterComponent={
             <AddMedicineButton
               onPress={() => navigation.navigate('AddMedicine')}
