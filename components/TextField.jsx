@@ -34,6 +34,7 @@ export const TextField = props => {
         scrollEnabled={false}
         onScroll={undefined}
         placeholder={props.placeholder}
+        value={props.value}
         keyboardType={
           props.keyboardType !== 'password' ? props.keyboardType : undefined
         }

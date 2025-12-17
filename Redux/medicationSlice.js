@@ -6,12 +6,17 @@ export const saveMedicationSchedule = createAsyncThunk(
     try {
       console.log('🟡 PAYLOAD:', payload);
 
-      const { userId, medicationId, times } = payload;
+      const { userId, medicineName, dosage, times } = payload;
 
       const res = await fetch('http://10.0.2.2:4000/medication-schedules', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, medicationId, times }),
+        body: JSON.stringify({
+          userId,
+          medicineName,
+          dosage,
+          times,
+        }),
       });
 
       if (!res.ok) {
@@ -19,15 +24,13 @@ export const saveMedicationSchedule = createAsyncThunk(
         return thunkAPI.rejectWithValue(text || 'Error servidor');
       }
 
-      const data = await res.json();
-      console.log('✅ DATA:', data);
-
-      return data;
+      return await res.json();
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message || 'Error de red');
     }
   }
 );
+
 
 export const fetchMedicationSchedules = createAsyncThunk(
   'medication/fetchSchedules',

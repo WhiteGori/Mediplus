@@ -87,20 +87,46 @@ app.post('/signup', async (req, res) => {
 });
 
 app.post('/medication-schedules', async (req, res) => {
-  const { userId, medicationId, times } = req.body;
+  const { userId, medicineName, dosage, times } = req.body;
 
-  if (!userId || !medicationId || !Array.isArray(times) || times.length === 0) {
+  if (
+    !userId ||
+    !medicineName ||
+    !Array.isArray(times) ||
+    times.length === 0
+  ) {
     return res.status(400).json({
-      error: 'userId, medicationId y un array de times son requeridos',
+      error: 'userId, medicineName y al menos un horario son requeridos',
     });
   }
 
   try {
+    // 1️⃣ Buscar medicamento por (name, dosage)
+    let medication = await prisma.medication.findUnique({
+      where: {
+        name_dosage: {
+          name: medicineName,
+          dosage: dosage || '',
+        },
+      },
+    });
+
+    // 2️⃣ Crear medicamento si no existe
+    if (!medication) {
+      medication = await prisma.medication.create({
+        data: {
+          name: medicineName,
+          dosage: dosage || '',
+        },
+      });
+    }
+
+    // 3️⃣ Crear el schedule
     const schedule = await prisma.medicationSchedule.create({
       data: {
         userId,
-        medicationId,
-        times, // array de strings tipo ["08:00", "14:00"]
+        medicationId: medication.id,
+        times,
       },
     });
 
@@ -110,6 +136,7 @@ app.post('/medication-schedules', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 app.get('/medication-schedules/:userId', async (req, res) => {
   const userId = Number(req.params.userId);
