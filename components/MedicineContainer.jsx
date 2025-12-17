@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
-import Animated, { FadeInUp, FadeOut } from 'react-native-reanimated';
 import * as Res from '../resources';
 import { Timer } from './Timer';
+
+import Animated, {
+  FadeInUp,
+  FadeOut,
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 export const MedicineContainer = ({
   name,
@@ -12,21 +20,41 @@ export const MedicineContainer = ({
   onDelete,
   scheduleId,
 }) => {
+  // 🔁 Valor animado para el pulso
+  const pulse = useSharedValue(1);
+
+  // ▶️ Activar / desactivar animación
+  useEffect(() => {
+    if (isAlarmActive) {
+      pulse.value = withRepeat(
+        withTiming(1.05, { duration: 700 }),
+        -1,
+        true
+      );
+    } else {
+      pulse.value = withTiming(1, { duration: 200 });
+    }
+  }, [isAlarmActive]);
+
+  
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulse.value }],
+  }));
+
   return (
     <Animated.View
       entering={FadeInUp.duration(250)}
       exiting={FadeOut}
       style={styles.card}
     >
-      {/* 🧾 TÍTULO */}
       <Text style={styles.title}>{name}</Text>
 
       {isAlarmActive ? (
-        /* 🔴 ESTADO ALARMA */
+        
         <Animated.View
           entering={FadeInUp}
           exiting={FadeOut}
-          style={styles.alertBox}
+          style={[styles.alertBox, pulseStyle]}
         >
           <Text style={styles.alertText}>
             ⏰ Es hora de tomar la medicación
@@ -43,7 +71,7 @@ export const MedicineContainer = ({
           </TouchableOpacity>
         </Animated.View>
       ) : (
-        /* ⏳ ESTADO NORMAL */
+        
         <Animated.View
           entering={FadeInUp}
           exiting={FadeOut}
@@ -83,8 +111,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#e0e0e0',
     alignItems: 'center',
-    marginBottom: 16,
-    elevation: 4, // Android shadow
   },
   title: {
     fontSize: 22,
@@ -109,7 +135,7 @@ const styles = StyleSheet.create({
   alertText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#d32f2f',
+    color: 'red',
     marginBottom: 14,
     textAlign: 'center',
   },
