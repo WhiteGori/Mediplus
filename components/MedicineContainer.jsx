@@ -9,6 +9,7 @@ export const MedicineContainer = ({
   isAlarmActive,
   onStopAlarm,
   onPress,
+  scheduleId
 }) => {
   return (
     <TouchableOpacity
@@ -40,6 +41,7 @@ export const MedicineContainer = ({
           <Text style={styles.textoTimer}>Tomar dentro de</Text>
           <Timer
             style={styles.textoTimer}
+            scheduleId={scheduleId}
             times={times}
             medicationName={name}
           />

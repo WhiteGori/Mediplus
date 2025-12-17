@@ -10,10 +10,13 @@ const alarmSlice = createSlice({
   name: 'alarm',
   initialState: {
     active: false,
+    scheduleId: null,
     medicationName: null,
   },
   reducers: {
     startAlarm: (state, action) => {
+      const { scheduleId, medicationName } = action.payload;
+
       if (alarmSound) return;
 
       alarmSound = new Sound(
@@ -28,7 +31,8 @@ const alarmSlice = createSlice({
       );
 
       state.active = true;
-      state.medicationName = action.payload;
+      state.scheduleId = scheduleId;
+      state.medicationName = medicationName;
     },
     stopAlarm: state => {
       if (alarmSound) {
@@ -38,8 +42,10 @@ const alarmSlice = createSlice({
       }
 
       state.active = false;
+      state.scheduleId = null;
       state.medicationName = null;
     },
+
   },
 });
 

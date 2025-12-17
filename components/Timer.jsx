@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Text } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { startAlarm } from '../Redux/alarmSlice';
 
-export const Timer = ({ times = [], style, medicationName }) => {
+export const Timer = ({ times = [], style, medicationName, scheduleId }) => {
   const dispatch = useDispatch();
   const [target, setTarget] = useState(null);
   const [timeLeft, setTimeLeft] = useState('00:00:00');
+  const triggeredRef = useRef(false); // 🔒 anti doble disparo
 
   const getNextDate = () => {
     const now = new Date();
@@ -33,9 +34,10 @@ export const Timer = ({ times = [], style, medicationName }) => {
     return `${h}:${m}:${s}`;
   };
 
-  // recalcular próximo horario
   useEffect(() => {
-    setTarget(getNextDate());
+    const next = getNextDate();
+    setTarget(next);
+    triggeredRef.current = false; // 🔄 reset al cambiar horario
   }, [times]);
 
   useEffect(() => {
@@ -45,16 +47,22 @@ export const Timer = ({ times = [], style, medicationName }) => {
       const now = new Date();
       const diff = target - now;
 
-      if (diff <= 0) {
-        dispatch(startAlarm(medicationName));
-        setTarget(getNextDate());
-      } else {
+      if (diff <= 0 && !triggeredRef.current) {
+        triggeredRef.current = true;
+
+        dispatch(
+          startAlarm({
+            scheduleId,
+            medicationName,
+          })
+        );
+      } else if (diff > 0) {
         setTimeLeft(formatTime(diff));
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [target, dispatch, medicationName]);
+  }, [target, dispatch, medicationName, scheduleId]);
 
   return <Text style={style}>{timeLeft}</Text>;
 };

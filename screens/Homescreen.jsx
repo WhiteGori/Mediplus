@@ -2,6 +2,7 @@ import React, {useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchMedicationSchedules } from '../Redux/medicationSlice';
 import { useFocusEffect } from '@react-navigation/native';
+import { stopAlarm } from '../Redux/alarmSlice';
 
 
 import {
@@ -31,6 +32,9 @@ export const Home = ({navigation}) => {
 
   const alarmActive = useSelector(state => state.alarm.active);
   const medicationName = useSelector(state => state.alarm.medicationName);
+  const alarmScheduleId = useSelector(
+  state => state.alarm.scheduleId
+);
 
 
   const auth = useSelector(state => state.auth);
@@ -61,7 +65,7 @@ export const Home = ({navigation}) => {
       name: fullName,
       times: schedule.times,
       isAlarmActive:
-        alarmActive && medicationName === fullName,
+        alarmActive && alarmScheduleId === schedule.id,
     };
   });
 
@@ -131,7 +135,9 @@ export const Home = ({navigation}) => {
             <MedicineContainer
               name={item.name}
               times={item.times}
+              scheduleId={item.id}
               isAlarmActive={item.isAlarmActive}
+              onStopAlarm={() => dispatch(stopAlarm())} 
               onPress={() => showModal(item)}
             />
           )}
