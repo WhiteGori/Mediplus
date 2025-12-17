@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchMedicationSchedules } from '../Redux/medicationSlice';
 import { useFocusEffect } from '@react-navigation/native';
 import { stopAlarm } from '../Redux/alarmSlice';
+import { deleteMedicationSchedule } from '../Redux/medicationSlice';
+
 
 
 import {
@@ -139,6 +141,10 @@ export const Home = ({navigation}) => {
               isAlarmActive={item.isAlarmActive}
               onStopAlarm={() => dispatch(stopAlarm())} 
               onPress={() => showModal(item)}
+              onDelete={(scheduleId) => {
+              dispatch(stopAlarm()); // por si justo estaba sonando
+              dispatch(deleteMedicationSchedule(scheduleId));
+            }}
             />
           )}
           ListFooterComponent={

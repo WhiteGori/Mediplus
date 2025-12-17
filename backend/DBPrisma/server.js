@@ -137,6 +137,25 @@ app.post('/medication-schedules', async (req, res) => {
   }
 });
 
+app.delete('/medication-schedules/:id', async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!id) {
+    return res.status(400).json({ error: 'ID inválido' });
+  }
+
+  try {
+    await prisma.medicationSchedule.delete({
+      where: { id },
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error eliminando schedule:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 app.get('/medication-schedules/:userId', async (req, res) => {
   const userId = Number(req.params.userId);

@@ -52,6 +52,26 @@ export const fetchMedicationSchedules = createAsyncThunk(
   }
 );
 
+export const deleteMedicationSchedule = createAsyncThunk(
+  'medication/deleteSchedule',
+  async (scheduleId, thunkAPI) => {
+    try {
+      const res = await fetch(
+        `http://10.0.2.2:4000/medication-schedules/${scheduleId}`,
+        { method: 'DELETE' }
+      );
+
+      if (!res.ok) {
+        throw new Error('Error al eliminar schedule');
+      }
+
+      return scheduleId;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
 
 const medicationSlice = createSlice({
   name: 'medication',
@@ -112,7 +132,13 @@ const medicationSlice = createSlice({
       .addCase(fetchMedicationSchedules.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(deleteMedicationSchedule.fulfilled, (state, action) => {
+        state.schedules = state.schedules.filter(
+          s => s.id !== action.payload
+        );
       });
+
 
       
   },

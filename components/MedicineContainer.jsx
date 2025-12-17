@@ -6,91 +6,98 @@ import { Timer } from './Timer';
 export const MedicineContainer = ({
   name,
   times,
+  scheduleId,
   isAlarmActive,
-  onStopAlarm,
-  onPress,
-  scheduleId
+  onDelete,
 }) => {
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={styles.medicineButton}
-      activeOpacity={0.9}
-    >
-      <Text style={styles.nombreMedicamentos}>{name}</Text>
+    <View style={styles.card}>
+      {/* 🧠 HEADER */}
+      <View style={styles.header}>
+        <Text style={styles.title}>{name}</Text>
 
-      {/* 🔴 ESTADO ALARMA */}
+        <TouchableOpacity
+          onPress={() => onDelete(scheduleId)}
+          style={styles.deleteButton}
+        >
+          <Text style={styles.deleteText}>🗑</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* ⏰ BODY */}
       {isAlarmActive ? (
-        <View style={styles.alertBox}>
-          <Text style={styles.alertText}>
-            ⏰ Es hora de tomar la medicación
-          </Text>
-
-          <TouchableOpacity
-            style={styles.alertButton}
-            onPress={onStopAlarm}
-          >
-            <Text style={styles.alertButtonText}>
-              Marcar como tomada
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.alarmText}>
+          ⏰ Es hora de tomar la medicación
+        </Text>
       ) : (
-        /* ⏳ ESTADO NORMAL */
-        <View style={{ alignItems: 'center' }}>
-          <Text style={styles.textoTimer}>Tomar dentro de</Text>
+        <View style={styles.timerBox}>
+          <Text style={styles.subtitle}>Próxima toma en</Text>
           <Timer
-            style={styles.textoTimer}
+            style={styles.timer}
             scheduleId={scheduleId}
             times={times}
             medicationName={name}
           />
         </View>
       )}
-    </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  medicineButton: {
-    width: '80%',
-    height: 170,
+  card: {
+    width: '85%',
     alignSelf: 'center',
     backgroundColor: 'white',
-    borderRadius: 30,
-    justifyContent: 'center',
-    padding: 15,
-    borderColor: '#d7d9d9',
-    borderWidth: 3,
-    alignItems: 'center',
+    borderRadius: 24,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
   },
-  nombreMedicamentos: {
-    color: 'black',
-    fontSize: 22,
+
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+
+  title: {
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
+    color: '#222',
+    flex: 1,
   },
-  textoTimer: {
-    color: Res.COMPONENT_COLOR.PRIMARY,
-    fontSize: 16,
+
+  deleteButton: {
+    padding: 6,
   },
-  alertBox: {
+
+  deleteText: {
+    fontSize: 20,
+    color: '#c62828',
+  },
+
+  timerBox: {
     alignItems: 'center',
   },
-  alertText: {
+
+  subtitle: {
+    fontSize: 14,
+    color: '#777',
+    marginBottom: 4,
+  },
+
+  timer: {
+    fontSize: 18,
+    color: Res.COMPONENT_COLOR.PRIMARY,
+    fontWeight: 'bold',
+  },
+
+  alarmText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'red',
-    marginBottom: 10,
-  },
-  alertButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  alertButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: '#d32f2f',
+    textAlign: 'center',
   },
 });
