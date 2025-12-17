@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
+import Animated, { FadeInUp, FadeOut } from 'react-native-reanimated';
 import * as Res from '../resources';
 import { Timer } from './Timer';
 
@@ -12,12 +13,21 @@ export const MedicineContainer = ({
   scheduleId,
 }) => {
   return (
-    <View style={styles.card}>
+    <Animated.View
+      entering={FadeInUp.duration(250)}
+      exiting={FadeOut}
+      style={styles.card}
+    >
+      {/* 🧾 TÍTULO */}
       <Text style={styles.title}>{name}</Text>
 
       {isAlarmActive ? (
-        /* 🔴 ALARMA ACTIVA */
-        <View style={styles.alertBox}>
+        /* 🔴 ESTADO ALARMA */
+        <Animated.View
+          entering={FadeInUp}
+          exiting={FadeOut}
+          style={styles.alertBox}
+        >
           <Text style={styles.alertText}>
             ⏰ Es hora de tomar la medicación
           </Text>
@@ -25,15 +35,20 @@ export const MedicineContainer = ({
           <TouchableOpacity
             style={styles.takeButton}
             onPress={onStopAlarm}
+            activeOpacity={0.85}
           >
             <Text style={styles.takeButtonText}>
               Marcar como tomada
             </Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       ) : (
         /* ⏳ ESTADO NORMAL */
-        <>
+        <Animated.View
+          entering={FadeInUp}
+          exiting={FadeOut}
+          style={styles.normalBox}
+        >
           <Text style={styles.subtitle}>Próxima toma en</Text>
 
           <Timer
@@ -46,12 +61,15 @@ export const MedicineContainer = ({
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={() => onDelete(scheduleId)}
+            activeOpacity={0.6}
           >
-            <Text style={styles.deleteText}>🗑 Eliminar recordatorio</Text>
+            <Text style={styles.deleteText}>
+              🗑 Eliminar recordatorio
+            </Text>
           </TouchableOpacity>
-        </>
+        </Animated.View>
       )}
-    </View>
+    </Animated.View>
   );
 };
 
@@ -65,6 +83,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#e0e0e0',
     alignItems: 'center',
+    marginBottom: 16,
+    elevation: 4, // Android shadow
   },
   title: {
     fontSize: 22,
@@ -89,7 +109,7 @@ const styles = StyleSheet.create({
   alertText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'red',
+    color: '#d32f2f',
     marginBottom: 14,
     textAlign: 'center',
   },
