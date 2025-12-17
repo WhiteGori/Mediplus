@@ -47,7 +47,7 @@ export const Timer = ({ times = [], style, medicationName }) => {
 
       if (diff <= 0) {
         dispatch(startAlarm(medicationName));
-        setTarget(getNextDate()); // preparar siguiente toma
+        setTarget(getNextDate());
       } else {
         setTimeLeft(formatTime(diff));
       }

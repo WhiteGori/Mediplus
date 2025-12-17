@@ -29,6 +29,10 @@ export const Home = ({navigation}) => {
   
   const dispatch = useDispatch();
 
+  const alarmActive = useSelector(state => state.alarm.active);
+  const medicationName = useSelector(state => state.alarm.medicationName);
+
+
   const auth = useSelector(state => state.auth);
   const medication = useSelector(state => state.medication);
   const userId = auth.user?.id;
@@ -49,11 +53,18 @@ export const Home = ({navigation}) => {
     }, [auth.user?.id, dispatch])
   );
 
-  const mappedData = schedules.map(schedule => ({
-    id: schedule.id,
-    name: `${schedule.medication.name} ${schedule.medication.dosage}`,
-    times: schedule.times,
-  }));
+ const mappedData = schedules.map(schedule => {
+    const fullName = `${schedule.medication.name} ${schedule.medication.dosage}`;
+
+    return {
+      id: schedule.id,
+      name: fullName,
+      times: schedule.times,
+      isAlarmActive:
+        alarmActive && medicationName === fullName,
+    };
+  });
+
 
 
 
@@ -120,6 +131,7 @@ export const Home = ({navigation}) => {
             <MedicineContainer
               name={item.name}
               times={item.times}
+              isAlarmActive={item.isAlarmActive}
               onPress={() => showModal(item)}
             />
           )}
